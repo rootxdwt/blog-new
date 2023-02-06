@@ -1,0 +1,122 @@
+.mainArea{
+    min-height: 100vh;
+    padding-top: 60px;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    color: var(--var-title-color);
+    transition-property: color background-color;
+    transition-duration: .3s;
+    transition-timing-function: ease-in-out;
+}
+.loader{
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes load{
+    0%{
+        transform: rotate(0deg);
+    }
+    100%{
+        transform: rotate(360deg);
+    }
+}
+.loadBar{
+    animation: load 0.5s ease-in-out infinite;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    border-top: solid 3px var(--var-main-text-color);
+    border-left: solid 3px var(--var-main-text-color);
+    border-right: solid 3px var(--var-main-color);
+    border-bottom: solid 3px var(--var-main-color);
+}
+
+.postContainer{
+    display: flex;
+    align-items: flex-start;
+    border-bottom: solid 1px var(--var-border-color);
+    justify-content: center;
+    margin-top: 50px;
+    flex-direction: column;
+    width: 800px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    cursor: pointer;
+    padding-left: 20px;
+    transition: border-bottom 0.3s ease-in-out;
+}
+.postContainer:hover {
+    background-color: var(--var-border-color);
+}
+.postContainer .title {
+    font-weight: bold;
+    font-size: 15pt;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: rgb(123, 123, 123);
+    margin: 0;
+    font-size: 10pt;
+}
+
+.tags {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    height: 60px;
+}
+.tags .tag {
+    color: var(--var-title-color);
+    padding: 7px 12px 7px 12px;
+    font-size: 8pt;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px 0 5px;
+    background-color: var(--var-tag-color);
+    border-radius: 20px;
+    transition: all 0.3s ease-in-out;
+}
+.mainArea.dark {
+    --var-border-color: rgb(46, 46, 46);
+    --var-heads-color: rgb(220, 220, 220);
+    --var-title-color: rgb(255,255,255);
+    --var-tag-color: rgb(30, 30, 30);
+    background-color: #000;
+    --var-main-color: #000;
+    --var-main-text-color: rgb(139, 139, 139);
+
+    /* codes */
+    --var-bg-color: rgba(255,255,255,0.11);
+    --var-dt-color: #fff;
+        
+}
+
+
+.mainArea.light {
+    --var-border-color: rgb(188, 188, 188);
+    --var-heads-color: rgb(55, 55, 55);
+    --var-title-color: rgb(0, 0, 0);
+    --var-tag-color: rgb(235, 235, 235);
+    background-color: #fff;
+    --var-main-color: #fff;
+    --var-bg-color: rgba(0,0,0,.07);
+    --var-dt-color: #000;
+    --var-main-text-color: rgb(89, 89, 89);
+
+}
+
+@media(max-width: 880px){
+    .postContainer{
+        width: 90%;
+    }
+}

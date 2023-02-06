@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Nerko+One&display=swap');
+
+.header {
+    position: fixed;
+    top: 0px;
+    left: 0;
+    z-index: 1;
+    border-bottom: solid 1px var( --var-border-color);
+    height: 60px;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgb(200,200,200);
+    transition-property: background-color, color, border;
+    transition-timing-function :ease-in-out;
+    transition-duration: 0.3s;
+  }
+
+  .header.dark {
+    --var-border-color: rgb(72, 72, 72);
+    --var-buttons-color: rgb(200, 200, 200);
+    --var-logo-color: rgb(200, 200, 200);
+    background-color: #000;
+  }
+  .header.light {
+    --var-border-color: rgb(179, 179, 179);
+    --var-buttons-color: rgb(102, 102, 102);
+    --var-logo-color: rgb(102, 102, 102);
+    background-color: #fff;
+  }
+
+  .mainHeader {
+    max-width: 800px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+  }
+  .logoCont {
+    display: flex;
+    align-items: flex-end;
+    font-size: 10pt;
+    color: var(--var-logo-color);
+    font-family: 'Nerko One', cursive;
+  }
+  .logoArea {
+    font-family: 'Nerko One', cursive;
+    margin-left: 0px;
+    margin-right: auto;
+    font-size: 17pt;
+    margin-left: 20px;
+    color: var(--var-logo-color);
+    margin-right: 5px;
+  }
+
+  .buttonArea {
+    margin-right: 20px;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15pt;
+    cursor: pointer;
+    color: var(--var-buttons-color);
+  }
