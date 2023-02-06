@@ -1,2 +1,1 @@
-source for `blog.ecdev.me`
-made by me
+simple markdown based blog coded by me
