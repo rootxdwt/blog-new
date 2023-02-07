@@ -1,7 +1,11 @@
-import { DetaDB } from "../../lib/db";
+
+
+//next
+import { useRouter } from "next/router";
 import Head from "next/head";
 import { GetServerSideProps } from 'next'
 
+//markdown
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
@@ -11,6 +15,7 @@ import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 
+//react
 import React, {
   useState,
   useEffect,
@@ -19,13 +24,25 @@ import React, {
   useRef,
 } from "react";
 
-import Image from "next/image";
-import styles from "../../styles/Post.module.css";
-import headerStyles from "../../styles/Header.module.css";
-import { useRouter } from "next/router";
-import { AiFillGithub } from "react-icons/ai";
-import { HiMail } from "react-icons/hi";
-import { MdDarkMode, MdLightMode, MdInsertLink } from "react-icons/md";
+//components
+import { Header } from "../../lib/ui/component/header";
+import { UserInfoArea } from "../../lib/ui/component/userBox";
+import { Article } from "../../lib/ui/component/article";
+import { Tags } from "../../lib/ui/component/tags";
+import { Footer } from "../../lib/ui/component/footer";
+
+//redux
+import { useSelector } from 'react-redux';
+import { StateType } from "../../lib/store";
+
+//backend lib
+import { DetaDB } from "../../lib/db";
+
+//other
+import { MdInsertLink } from "react-icons/md";
+import styled, { ThemeProvider } from 'styled-components'
+import { dark, light } from "../../lib/ui/theme";
+import { GlobalStyle } from "../../lib/ui/globalStyle";
 
 interface article {
   title: string;
@@ -33,7 +50,7 @@ interface article {
   key: string;
   id: string;
   category: string;
-  date: string;
+  date: number;
   tags: Array<string>;
   prevtext: string;
   previmg: string;
@@ -46,6 +63,23 @@ interface topicArray {
 }
 
 let h2IdList: Array<topicArray> = [];
+
+const H2exports = styled.div`
+display: flex;
+align-items: center;
+justify-content: flex-start;
+`
+
+const ExportBtn = styled.p<{ hovering: boolean }>`
+display: ${props => props.hovering ? "none" : "flex"};
+align-items: center;
+justify-content: center;
+margin-left: 10px;
+font-size: 15pt;
+margin-left: auto;
+margin-right: 0px;
+cursor: pointer;
+`
 
 const H2Elem = (prop: any) => {
   const h2Ref = useRef<any>();
@@ -60,7 +94,7 @@ const H2Elem = (prop: any) => {
     h2IdList.push({
       id: prop.id,
       displayName: prop.children[0],
-      offsetTop: h2Ref.current.offsetTop,
+      offsetTop: h2Ref.current.getBoundingClientRect().top + window.scrollY,
     });
     if (window.location.hash) {
       if (decodeURIComponent(window.location.hash.replace("#", "")) == prop.id) {
@@ -70,24 +104,54 @@ const H2Elem = (prop: any) => {
   }, []);
 
   return (
-    <div
-      className={styles.h2AndExports}
+    <H2exports
       onMouseOver={() => setElem(true)}
       onMouseOut={() => setElem(false)}
     >
       <h2 ref={h2Ref} id={prop.id}>
         {prop.children[0]}
       </h2>
-      {isElemActive ? (
-        <p className={styles.exportBtn} onClick={() => clickedLink(prop.id)}>
-          <MdInsertLink />
-        </p>
-      ) : (
-        <></>
-      )}
-    </div>
+      <ExportBtn hovering={!isElemActive} onClick={() => clickedLink(prop.id)}>
+        <MdInsertLink />
+      </ExportBtn>
+    </H2exports>
   );
 }
+
+
+const StyledNavBar = styled.div`
+transition-property: border background-color;
+transition-duration: 0.3s;
+transition-timing-function: ease-in-out;
+position: fixed;
+top: 100px;
+right: 50px;
+display: flex;
+flex-direction: column;
+border-left: solid 2px ${props => props.theme.main.borderColor};
+padding-left: 10px;
+background-color: transparent;
+@media(max-width: 1150px){
+  display: none;
+}
+`
+
+const NavBarBtn = styled.div<{ isFocused: boolean }>`
+display: flex;
+font-size: 9pt;
+width: 200px;
+overflow: hidden;
+color: ${props => props.theme.main.headColor};
+margin: 5px 0px 5px 0px;
+padding: 5px 10px 5px 10px;
+white-space: nowrap;
+margin: 10px 0px 10px 0px;
+user-select: none;
+cursor: pointer;
+text-overflow: ellipsis;
+background-color: ${props => props.isFocused ? props.theme.main.codeBackgroundColor : "transparent"}
+
+`
 
 const Navigation = () => {
   const router = useRouter();
@@ -97,7 +161,7 @@ const Navigation = () => {
   );
 
   router.events.on("hashChangeComplete", () => {
-    setActive(window.location.hash.replace("#", ""));
+    setActive(decodeURIComponent(window.location.hash.replace("#", "")));
   });
 
   useEffect(() => {
@@ -106,14 +170,14 @@ const Navigation = () => {
 
   const listenForScroll = () => {
     h2IdList.forEach((item) => {
-      if (window.pageYOffset + 70 >= item.offsetTop) {
+      if (window.pageYOffset + 71 >= item.offsetTop) {
         setActive(item.id);
       }
     });
   };
+
   useEffect(() => {
-    document.addEventListener("scroll", listenForScroll);
-    return window.removeEventListener("scroll", listenForScroll);
+    window.addEventListener("scroll", listenForScroll);
   }, []);
 
   const moveTo = (id: string) => {
@@ -121,31 +185,108 @@ const Navigation = () => {
   };
 
   return (
-    <div className={styles.navBar}>
+    <StyledNavBar>
       {idList.map((item, index) => {
         return (
-          <div
+          <NavBarBtn isFocused={activeItem == item.id}
             key={index}
-            className={`${styles.item} ${activeItem == item.id ? styles.active : ""
-              }`}
             onClick={() => moveTo(item.id)}
           >
             {item.displayName}
-          </div>
+          </NavBarBtn>
         );
       })}
-    </div>
+    </StyledNavBar>
   );
 }
+
+const PostHolder = styled.div`
+width: 100vw;
+display: flex;
+justify-content: center;
+transition: background-color 0.3s ease-in-out;
+position: relative;
+background-color: ${props => props.theme.main.mainColor};
+`
+
+const Post = styled.div`
+padding: 0px;
+max-width: 700px;
+transition: background-color 0.3s ease-in-out;
+margin-right: 0px;
+
+@media(min-width: 1600px){
+  max-width: 800px;
+}
+@media(min-width: 1800px){
+  max-width: 900px;
+}
+@media(max-width: 1200px) {
+  margin-right: 80px;
+}
+@media(max-width: 1150px){
+  margin-right: 0px;
+}
+`
+
+const HeadingContainer = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+flex-direction: column;
+margin-bottom: 20px;
+margin-top: 110px;
+color: ${props => props.theme.main.titleColor};
+
+& h1{
+  font-size: 30pt;
+  text-align: center;
+  transition: color 0.3s ease-in-out;
+}
+& p{
+  color: ${props => props.theme.main.headColor};
+  transition: color 0.3s ease-in-out;
+}
+@media(max-width: 700px) {
+  & h1{
+      font-size: 25pt;
+  }
+}
+@media(max-width: 500px) {
+  & h1{
+      font-size: 21pt;
+  }
+}
+`
+
+const SubHeader = styled.div`
+display: flex;
+align-items: center;
+justify-content: space-between;
+width: 250px;
+flex-direction: row;
+transition: color 0.3s ease-in-out;
+
+& p{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+`
+
+const BlogContainer = styled.div`
+padding: 25px;
+padding-top: 0;
+position: relative;
+`
 
 export default function BlogPost({ data }: { data: Array<article> }) {
   const [articleData, changeArticleData] = useState({} as article);
   const [componentError, errorState] = useState(false);
   const [isComponentLoaded, setLoadstate] = useState(false);
-  const [isDark, changeTheme] = useState(true);
+  const isDark = useSelector<StateType>(state => state.theme);
   const [markdownReact, setMdSource] = useState(<></>);
   const ssrData = data[0];
-  const [isUserDataShown, changeUDstate] = useState(false);
 
   useEffect(() => {
     try {
@@ -170,20 +311,10 @@ export default function BlogPost({ data }: { data: Array<article> }) {
           });
       }
 
-      changeTheme(
-        localStorage.getItem("theme") != null
-          ? localStorage.getItem("theme") == "true"
-          : true
-      );
     } catch (e) {
       errorState(true);
     }
   }, []);
-
-  useEffect(() => {
-    var i = document.querySelector("body") as HTMLInputElement | null;
-    if (i != null) i.className = isDark ? "dark" : "light";
-  }, [isDark]);
 
   return (
     <>
@@ -201,105 +332,33 @@ export default function BlogPost({ data }: { data: Array<article> }) {
       </Head>
       {isComponentLoaded ? (
         <>
-          <div
-            className={`${headerStyles.header} ${isDark ? headerStyles.dark : headerStyles.light
-              }`}
-          >
-            <div className={headerStyles.mainHeader}>
-              <div className={headerStyles.logoArea}>Blog</div>
-              <div
-                className={headerStyles.buttonArea}
-                onClick={() => {
-                  changeTheme(!isDark);
-                  localStorage.setItem("theme", String(!isDark));
-                }}
-              >
-                {isDark ? <MdDarkMode /> : <MdLightMode />}
-              </div>
-            </div>
-          </div>
-          <div
-            className={`${styles.holder} ${isDark ? styles.dark : styles.light
-              }`}
-          >
-            <div
-              className={`${styles.blogPost} ${isDark ? styles.dark : styles.light
-                }`}
-            >
-              <Navigation />
+          <ThemeProvider theme={isDark ? dark : light}>
+            <GlobalStyle />
+            <Header />
+            <PostHolder>
+              <Post>
+                <Navigation />
 
-              <div className={styles.heading}>
-                <div className={styles.prehead}>
-                  <p>{articleData.category}</p>|
-                  <p>
-                    {new Date(articleData.date).getFullYear()}년{" "}
-                    {new Date(articleData.date).getMonth() + 1}월{" "}
-                    {new Date(articleData.date).getDate()}일{" "}
-                  </p>
-                </div>
-                <h1>{articleData.title}</h1>
-              </div>
+                <HeadingContainer>
+                  <SubHeader>
+                    <p>{articleData.category}</p>|
+                    <p>
+                      {DateTitle(articleData.date)}
+                    </p>
+                  </SubHeader>
+                  <h1>{articleData.title}</h1>
+                </HeadingContainer>
+                <BlogContainer>
+                  <UserInfoArea info={{ username: "ecde.v", profileImage: "https://avatars.githubusercontent.com/u/65634206?v=4", mail: "eunchong@ecdev.me", ghUser: "rootxdwt" }} />
+                  <Article>{markdownReact}</Article>
+                  <Tags tags={articleData.tags} />
 
-              <div className={styles.blogContainer}>
-                <div
-                  className={styles.userBox}
-                  onClick={() => changeUDstate(!isUserDataShown)}
-                >
-                  <Image
-                    src="https://avatars.githubusercontent.com/u/65634206?v=4"
-                    alt="userPfp"
-                    width={34}
-                    height={34}
-                  ></Image>
-                  <p>@ecde.v</p>
-                </div>
-                {isUserDataShown ? (
-                  <>
-                    <div className={styles.userInfo}>
-                      <Image
-                        src="https://avatars.githubusercontent.com/u/65634206?v=4"
-                        alt="userPfp"
-                        width={40}
-                        height={40}
-                      ></Image>
-                      <span>
-                        <b>ecde.v</b>
-                      </span>
-                      <span>
-                        <a
-                          href="https://github.com/rootxdwt"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <AiFillGithub />
-                        </a>
-                        <a
-                          href="mailto:eunchong@ecdev.me"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <HiMail />
-                        </a>
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <></>
-                )}
+                </BlogContainer>
+              </Post>
+            </PostHolder>
+            <Footer />
 
-                <div className={styles.article}>{markdownReact}</div>
-                <div className={styles.tags}>
-                  {articleData.tags.map((itm, idx) => {
-                    return (
-                      <div className={styles.tag} key={idx}>
-                        # {itm}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+          </ThemeProvider>
         </>
       ) : componentError ? (
         <>Error</>
@@ -312,7 +371,7 @@ export default function BlogPost({ data }: { data: Array<article> }) {
 
 export const getServerSideProps: GetServerSideProps<{ data: object }> = async (context) => {
   const { id } = context.query;
-  var db = new DetaDB(process.env.DB_ID!, process.env.DB_KEY!);
+  const db = new DetaDB(process.env.DB_ID!, process.env.DB_KEY!);
   try {
     var data = await db.query("post", [{ id: id }]);
 
@@ -330,3 +389,8 @@ export const getServerSideProps: GetServerSideProps<{ data: object }> = async (c
     };
   }
 };
+
+const DateTitle = (timestamp: number) => {
+  const date = new Date(timestamp)
+  return `${date.getFullYear()}년 ${date.getMonth()}월 ${date.getDate()}일`
+}

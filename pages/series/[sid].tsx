@@ -1,12 +1,17 @@
 
 import { useEffect, useState } from "react";
 import { DetaDB } from "../../lib/db";
-import headerStyles from "../../styles/Header.module.css";
-import seriesStyle from "../../styles/Series.module.css"
-import { MdDarkMode, MdLightMode } from "react-icons/md";
-import { Router, useRouter } from "next/router";
+
+import styled, { ThemeProvider, keyframes } from "styled-components";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import { GetServerSideProps } from "next"
+import { Tags } from "../../lib/ui/component/tags";
+import { Header } from "../../lib/ui/component/header";
+import { useSelector } from "react-redux";
+import { StateType } from "../../lib/store";
+import { dark, light } from "../../lib/ui/theme";
+import { GlobalStyle } from "../../lib/ui/globalStyle";
 
 interface previewArticle {
     key: string,
@@ -18,17 +23,99 @@ interface previewArticle {
     title: string
 }
 
+const rotate = keyframes`
+0%{
+    transform: rotate(0deg);
+}
+100%{
+    transform: rotate(360deg);
+}
+`
+
+const MainArea = styled.div`
+min-height: 100vh;
+padding-top: 60px;
+width: 100vw;
+display: flex;
+align-items: center;
+flex-direction: column;
+color: ${props => props.theme.main.titleColor};
+transition-property: color background-color;
+transition-duration: 0.3s;
+transition-timing-function: ease-in-out;
+background-color: ${props => props.theme.main.mainColor};
+`
+
+const LoaderContainer = styled.div`
+width: 100vw;
+height: 100vh;
+display: flex;
+align-items: center;
+justify-content: center;
+position: fixed;
+z-index:3;
+top:0;
+left:0;
+`
+
+const Loader = styled.span`
+animation: ${rotate} 1s ease-in-out infinite;
+width: 30px;
+height: 30px;
+border-radius: 15px;
+border-top: solid 3px ${props => props.theme.main.mainTextColor};
+border-left: solid 3px ${props => props.theme.main.mainTextColor};
+border-right: solid 3px ${props => props.theme.main.mainColor};
+border-bottom: solid 3px ${props => props.theme.main.mainColor};
+`
+
+const Container = styled.div`
+display: flex;
+align-items: flex-start;
+border-bottom: solid 1px ${props => props.theme.main.borderColor};
+justify-content: center;
+margin-top: 50px;
+flex-direction: column;
+width: 800px;
+padding-top: 20px;
+padding-bottom: 20px;
+cursor: pointer;
+padding-left: 20px;
+transition: border-bottom 0.3s ease-in-out;
+background-color: transparent;
+
+&:hover{
+    background-color: ${props => props.theme.main.borderColor};
+}
+
+& .title {
+    font-weight: bold;
+    font-size: 15pt;
+    margin-bottom: 10px;
+}
+& .subtitle {
+    color: rgb(123, 123, 123);
+    margin: 0;
+    font-size: 10pt;
+    margin-bottom: 10px;
+}
+@media(max-width: 880px){
+    width: 90%;
+}
+`
+
 export default function BlogPost({ data }: { data: Array<previewArticle> }) {
 
     const router = useRouter();
-    const [isDark, changeTheme] = useState(true)
+    const isDark = useSelector<StateType>(state => state.theme);
+    const [loadedState, setLoaded] = useState(false)
     const [isLoading, changeLoadingState] = useState(false)
 
+
     useEffect(() => {
-        var i = document.querySelector("body") as HTMLInputElement | null;
-        if (i != null) i.className = isDark ? "dark" : "light";
-    }, [isDark]);
-    useEffect(() => { router.events.on('routeChangeStart', () => changeLoadingState(true)); changeTheme(localStorage.getItem('theme') == "true") }, [])
+        router.events.on('routeChangeStart', () => changeLoadingState(true));
+        setLoaded(true) //prevents annoying hydrationerror
+    }, [])
     return (
         <>
             <Head>
@@ -36,49 +123,33 @@ export default function BlogPost({ data }: { data: Array<previewArticle> }) {
                 <meta property="og:title" content="Blog Series" />
                 <meta name="twitter:title" content="Blog Series" />
             </Head>
-            <div
-                className={`${headerStyles.header} ${isDark ? headerStyles.dark : headerStyles.light
-                    }`}
-            >
-                <div className={headerStyles.mainHeader}>
-                    <div className={headerStyles.logoCont}><div className={headerStyles.logoArea}>Blog</div>Series</div>
-                    <div
-                        className={headerStyles.buttonArea}
-                        onClick={() => {
-                            changeTheme(!isDark);
-                            localStorage.setItem("theme", String(!isDark));
-                        }}
-                    >
-                        {isDark ? <MdDarkMode /> : <MdLightMode />}
-                    </div>
-                </div>
-            </div>
-            <div className={`${seriesStyle.mainArea} ${isDark ? seriesStyle.dark : seriesStyle.light}`}>
-                {isLoading ? <div className={seriesStyle.loader}><div className={seriesStyle.loadBar}></div></div> : data.map((elem, index) => {
-                    return (<div className={seriesStyle.postContainer} onClick={() => router.push(`/post/${elem.id}`)} key={index}>
-                        <p className={seriesStyle.title}>
-                            {elem.title}
+            {loadedState ? <ThemeProvider theme={isDark ? dark : light}>
+                <GlobalStyle />
+                <Header />
+                <MainArea>
+                    {isLoading ? <LoaderContainer><Loader /></LoaderContainer> : data.map((elem, index) => {
+                        return (<Container onClick={() => router.push(`/post/${elem.id}`)} key={index}>
+                            <p className="title">
+                                {elem.title}
 
-                        </p>
-                        <p className={seriesStyle.subtitle}>
-                            {elem.prevtext}
+                            </p>
+                            <p className="subtitle">
+                                {elem.prevtext}
 
-                        </p>
-                        <div className={seriesStyle.tags}>
-                            {elem.tags.map((tagelem, tagindex) => {
-                                return (<div className={seriesStyle.tag} key={tagindex}>{tagelem}</div>)
-                            })}
-                        </div>
-                    </div>)
-                })}
-            </div>
+                            </p>
+                            <Tags tags={elem.tags}></Tags>
+                        </Container>)
+                    })}
+                </MainArea>
+            </ThemeProvider> : <></>}
         </>
+
     )
 }
 
 export const getServerSideProps: GetServerSideProps<{ data: object }> = async (context: any) => {
     const { sid } = context.query;
-    var db = new DetaDB(process.env.DB_ID!, process.env.DB_KEY!);
+    const db = new DetaDB(process.env.DB_ID!, process.env.DB_KEY!);
 
     try {
         var data = await db.query("postPrev", [{ series: sid }]);

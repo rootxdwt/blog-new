@@ -1,23 +1,4 @@
-html,
-body {
-  padding: 0;
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-
-
-body.dark {
-  background-color: #000;
-}
-
-body.light {
-  background-color: #fff;
-}
+@import url('https://fonts.googleapis.com/css2?family=Nerko+One&display=swap');
 
 a {
   color: inherit;
@@ -138,16 +119,5 @@ footer {
   width: 100%;
   height: 60px;
   background-color: var(--var-bg-color);
-}
-
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
-  body {
-    color: white;
-    background: black;
-  }
 }
 
