@@ -31,6 +31,9 @@ import { Article } from "../../lib/ui/component/article";
 import { Tags } from "../../lib/ui/component/tags";
 import { Footer } from "../../lib/ui/component/footer";
 
+//icons
+import { MdInsertLink } from "react-icons/md";
+
 //redux
 import { useSelector } from 'react-redux';
 import { StateType } from "../../lib/store";
@@ -38,8 +41,7 @@ import { StateType } from "../../lib/store";
 //backend lib
 import { DetaDB } from "../../lib/db";
 
-//other
-import { MdInsertLink } from "react-icons/md";
+//style
 import styled, { ThemeProvider } from 'styled-components'
 import { dark, light } from "../../lib/ui/theme";
 import { GlobalStyle } from "../../lib/ui/globalStyle";

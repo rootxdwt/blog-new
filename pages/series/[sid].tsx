@@ -1,17 +1,27 @@
 
+//react
 import { useEffect, useState } from "react";
-import { DetaDB } from "../../lib/db";
 
-import styled, { ThemeProvider, keyframes } from "styled-components";
+//next
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { GetServerSideProps } from "next"
+
+//component
 import { Tags } from "../../lib/ui/component/tags";
 import { Header } from "../../lib/ui/component/header";
+
+//redux
 import { useSelector } from "react-redux";
 import { StateType } from "../../lib/store";
+
+//style,theme
+import styled, { ThemeProvider, keyframes } from "styled-components";
 import { dark, light } from "../../lib/ui/theme";
 import { GlobalStyle } from "../../lib/ui/globalStyle";
+
+//backend lib
+import { DetaDB } from "../../lib/db";
 
 interface previewArticle {
     key: string,
