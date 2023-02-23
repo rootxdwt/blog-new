@@ -35,7 +35,7 @@ import { Footer } from "../../lib/ui/component/footer";
 import { MdInsertLink } from "react-icons/md";
 
 //redux
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { StateType } from "../../lib/store";
 
 //backend lib
@@ -121,7 +121,8 @@ const H2Elem = (prop: any) => {
 }
 
 
-const StyledNavBar = styled.div`
+const StyledNavBar = styled.ul<{ showIndexList: boolean }>`
+margin:0;
 transition-property: border background-color;
 transition-duration: 0.3s;
 transition-timing-function: ease-in-out;
@@ -132,13 +133,19 @@ display: flex;
 flex-direction: column;
 border-left: solid 2px ${props => props.theme.main.borderColor};
 padding-left: 10px;
-background-color: transparent;
+background-color: ${props => props.theme.main.mainColor};
+z-index:3;
 @media(max-width: 1150px){
-  display: none;
+  display: ${props => props.showIndexList ? "flex" : "none"};
+  right:0px;
+  top:60px;
+  padding-right: 10px;
+  height: 100%;
+  border-left: solid 1px ${props => props.theme.main.borderColor};
 }
 `
 
-const NavBarBtn = styled.div<{ isFocused: boolean }>`
+const NavBarBtn = styled.li<{ isFocused: boolean }>`
 display: flex;
 font-size: 9pt;
 width: 200px;
@@ -151,13 +158,14 @@ margin: 10px 0px 10px 0px;
 user-select: none;
 cursor: pointer;
 text-overflow: ellipsis;
-background-color: ${props => props.isFocused ? props.theme.main.codeBackgroundColor : "transparent"}
+background-color: ${props => props.isFocused ? props.theme.main.codeBackgroundColor : "transparent"};
 
 `
 
 const Navigation = () => {
   const router = useRouter();
   const [idList, set] = useState<Array<topicArray>>([]);
+  const isSideBarMobileOpen = useSelector<StateType, boolean>(state => state.isSideMenuOpen)
   const [activeItem, setActive] = useState<string>(
     window.location.hash.replace("#", "")
   );
@@ -187,12 +195,12 @@ const Navigation = () => {
   };
 
   return (
-    <StyledNavBar>
+    <StyledNavBar showIndexList={isSideBarMobileOpen}>
       {idList.map((item, index) => {
         return (
           <NavBarBtn isFocused={activeItem == item.id}
             key={index}
-            onClick={() => moveTo(item.id)}
+            onClick={() => { moveTo(item.id) }}
           >
             {item.displayName}
           </NavBarBtn>
@@ -286,7 +294,7 @@ export default function BlogPost({ data }: { data: Array<article> }) {
   const [articleData, changeArticleData] = useState({} as article);
   const [componentError, errorState] = useState(false);
   const [isComponentLoaded, setLoadstate] = useState(false);
-  const isDark = useSelector<StateType>(state => state.theme);
+  const isDark = useSelector<StateType, boolean>(state => state.theme);
   const [markdownReact, setMdSource] = useState(<></>);
   const ssrData = data[0];
 
@@ -336,7 +344,7 @@ export default function BlogPost({ data }: { data: Array<article> }) {
         <>
           <ThemeProvider theme={isDark ? dark : light}>
             <GlobalStyle />
-            <Header />
+            <Header showMenuBtn />
             <PostHolder>
               <Post>
                 <Navigation />

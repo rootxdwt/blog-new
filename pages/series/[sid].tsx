@@ -135,7 +135,7 @@ export default function BlogPost({ data }: { data: Array<previewArticle> }) {
             </Head>
             {loadedState ? <ThemeProvider theme={isDark ? dark : light}>
                 <GlobalStyle />
-                <Header />
+                <Header showMenuBtn={false} />
                 <MainArea>
                     {isLoading ? <LoaderContainer><Loader /></LoaderContainer> : data.map((elem, index) => {
                         return (<Container onClick={() => router.push(`/post/${elem.id}`)} key={index}>

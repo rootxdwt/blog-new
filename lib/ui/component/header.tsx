@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { MdDarkMode, MdLightMode } from 'react-icons/md'
+import { MdDarkMode, MdLightMode, MdOutlineMenu } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from '../../store';
 
@@ -28,6 +28,9 @@ max-width: 800px;
 width: 100%;
 display: flex;
 flex-direction: row;
+&:last-child{
+    margin-right: 20px;
+}
 `
 
 const LogoContainer = styled.div`
@@ -40,7 +43,6 @@ color: ${props => props.theme.header.logoColor};
 margin-right: 5px;
 `
 const ButtonArea = styled.div`
-margin-right: 20px;
 margin-left: auto;
 display: flex;
 align-items: center;
@@ -48,14 +50,32 @@ justify-content: center;
 font-size: 15pt;
 cursor: pointer;
 color: ${props => props.theme.header.logoColor};
-
 &:hover {
     color: ${props => props.theme.header.ButtonColor};
 }
 `
 
-export const Header = () => {
+const MenuButton = styled.div`
+display:none;
+margin-left: 20px;
+font-size: 18pt;
+align-items:center;
+justify-content:center;
+color: ${props => props.theme.header.logoColor};
+cursor:pointer;
+&:hover{
+    color: ${props => props.theme.header.ButtonColor};
+}
 
+@media(max-width: 1150px){
+    display: flex;
+  }
+`
+
+
+export const Header = (props: { showMenuBtn: boolean }) => {
+
+    const { showMenuBtn } = props
     const dispatch = useDispatch()
     const currentTheme = useSelector<StateType>(state => state.theme)
 
@@ -68,6 +88,12 @@ export const Header = () => {
                 >
                     {currentTheme ? <MdDarkMode /> : <MdLightMode />}
                 </ButtonArea>
+                {showMenuBtn ?
+                    <MenuButton onClick={() => dispatch({ type: "side/toggle" })}>
+                        <MdOutlineMenu />
+                    </MenuButton> : <></>
+                }
+
             </HeaderContainer>
         </StyledHeader>
     )
