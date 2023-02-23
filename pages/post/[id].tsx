@@ -394,5 +394,5 @@ export const getServerSideProps: GetServerSideProps<{ data: object }> = async (c
 
 const DateTitle = (timestamp: number) => {
   const date = new Date(timestamp)
-  return `${date.getFullYear()}년 ${date.getMonth()}월 ${date.getDate()}일`
+  return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`
 }
