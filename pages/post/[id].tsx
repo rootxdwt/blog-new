@@ -152,13 +152,16 @@ width: 200px;
 overflow: hidden;
 color: ${props => props.theme.main.headColor};
 margin: 5px 0px 5px 0px;
-padding: 5px 10px 5px 10px;
+padding: 5px 10px;
 white-space: nowrap;
 margin: 10px 0px 10px 0px;
 user-select: none;
 cursor: pointer;
 text-overflow: ellipsis;
 background-color: ${props => props.isFocused ? props.theme.main.codeBackgroundColor : "transparent"};
+@media(max-width: 1150px){
+  padding: 8px 10px;
+}
 
 `
 
