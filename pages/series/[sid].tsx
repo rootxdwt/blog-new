@@ -114,7 +114,7 @@ background-color: transparent;
 }
 `
 
-export default function BlogPost({ data }: { data: Array<previewArticle> }) {
+export default function BlogSeries({ data }: { data: Array<previewArticle> }) {
 
     const router = useRouter();
     const isDark = useSelector<StateType>(state => state.theme);

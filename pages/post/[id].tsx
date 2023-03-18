@@ -14,6 +14,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 
 //react
 import React, {
@@ -217,15 +218,12 @@ const PostHolder = styled.div`
 width: 100vw;
 display: flex;
 justify-content: center;
-transition: background-color 0.3s ease-in-out;
 position: relative;
-background-color: ${props => props.theme.main.mainColor};
 `
 
 const Post = styled.div`
 padding: 0px;
 max-width: 700px;
-transition: background-color 0.3s ease-in-out;
 margin-right: 0px;
 
 @media(min-width: 1600px){
@@ -294,20 +292,20 @@ position: relative;
 `
 
 export default function BlogPost({ data }: { data: Array<article> }) {
-  const [articleData, changeArticleData] = useState({} as article);
   const [componentError, errorState] = useState(false);
   const [isComponentLoaded, setLoadstate] = useState(false);
   const isDark = useSelector<StateType, boolean>(state => state.theme);
   const [markdownReact, setMdSource] = useState(<></>);
-  const ssrData = data[0];
+  const articleData = data[0];
 
   useEffect(() => {
     try {
       if (typeof window !== "undefined") {
-        changeArticleData(ssrData);
+
         unified()
           .use(remarkParse)
           .use(remarkMath)
+          .use(remarkGfm)
           .use(remarkRehype)
           .use(rehypeHighlight)
           .use(rehypeSlug)
@@ -317,7 +315,7 @@ export default function BlogPost({ data }: { data: Array<article> }) {
             Fragment,
             components: { h2: H2Elem },
           })
-          .process(ssrData.text)
+          .process(articleData.text)
           .then((data) => {
             setMdSource(data.result);
             setLoadstate(true);
@@ -332,16 +330,16 @@ export default function BlogPost({ data }: { data: Array<article> }) {
   return (
     <>
       <Head>
-        <title>{`${ssrData.title} | Ecdev Blog`}</title>
-        <meta property="og:title" content={ssrData.title} />
-        <meta name="twitter:title" content={ssrData.title} />
+        <title>{`${articleData.title} | ecdev blog`}</title>
+        <meta property="og:title" content={articleData.title} />
+        <meta name="twitter:title" content={articleData.title} />
 
-        <meta name="description" content={ssrData.prevtext} />
-        <meta property="og:description" content={ssrData.prevtext} />
-        <meta name="twitter:description" content={ssrData.prevtext} />
+        <meta name="description" content={articleData.prevtext} />
+        <meta property="og:description" content={articleData.prevtext} />
+        <meta name="twitter:description" content={articleData.prevtext} />
 
-        <meta property="og:image" content={ssrData.previmg} />
-        <meta name="twitter:image" content={ssrData.previmg} />
+        <meta property="og:image" content={articleData.previmg} />
+        <meta name="twitter:image" content={articleData.previmg} />
       </Head>
       {isComponentLoaded ? (
         <>

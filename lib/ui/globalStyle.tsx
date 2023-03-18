@@ -1,7 +1,7 @@
 import { createGlobalStyle } from "styled-components";
 import { themeType } from "./theme";
 
-export const GlobalStyle = createGlobalStyle<{theme: themeType}>`
+export const GlobalStyle = createGlobalStyle<{ theme: themeType }>`
 html,
 body {
   padding: 0;
@@ -11,6 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: ${props=>props.theme.main.mainColor}
+  background-color: ${props => props.theme.main.mainColor};
+  transition: background-color 0.3s ease-in-out;
 }
 `

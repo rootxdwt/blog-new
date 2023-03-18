@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import { MdDarkMode, MdLightMode, MdOutlineMenu } from 'react-icons/md'
 import { useDispatch, useSelector } from 'react-redux';
 import { StateType } from '../../store';
+import { useRouter } from 'next/router';
 
 const StyledHeader = styled.div`
 position: fixed;
@@ -41,6 +42,8 @@ font-size: 17pt;
 margin-left: 20px;
 color: ${props => props.theme.header.logoColor};
 margin-right: 5px;
+user-select:none;
+cursor:pointer;
 `
 const ButtonArea = styled.div`
 margin-left: auto;
@@ -79,10 +82,12 @@ export const Header = (props: { showMenuBtn: boolean }) => {
     const dispatch = useDispatch()
     const currentTheme = useSelector<StateType>(state => state.theme)
 
+    const router = useRouter()
+
     return (
         <StyledHeader>
             <HeaderContainer>
-                <LogoContainer>Blog</LogoContainer>
+                <LogoContainer onClick={() => { router.push("/") }}>Blog</LogoContainer>
                 <ButtonArea
                     onClick={() => dispatch({ type: "theme/toggle" })}
                 >
